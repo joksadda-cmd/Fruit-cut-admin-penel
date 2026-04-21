@@ -3,1043 +3,656 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fruit Cut — Super Admin</title>
+    <title>Fruit Cut - Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Luckiest+Guy&display=swap');
-        *{margin:0;padding:0;box-sizing:border-box;}
-        :root{
-            --bg:#06101f;--panel:#0b1a2e;--panel2:#0f2340;--border:rgba(120,200,255,0.15);
-            --gold:#ffcc00;--teal:#00d4e8;--red:#ff3355;--green:#00e676;--purple:#c678ff;
-            --orange:#ff9800;--text:#ddeeff;--muted:#5a7a9a;--accent:#00d4e8;
-        }
-        body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-
-        /* ===== LOGIN ===== */
-        #login-screen{
-            display:flex;flex-direction:column;align-items:center;justify-content:center;
-            min-height:100vh;gap:18px;
-            background:radial-gradient(ellipse at 50% 0%,rgba(0,212,232,0.08) 0%,transparent 70%);
-        }
-        .login-logo{font-family:'Luckiest Guy',cursive;font-size:48px;color:var(--gold);
-            text-shadow:0 0 30px rgba(255,204,0,0.4),0 4px 0 #886600;letter-spacing:2px;}
-        .login-sub{font-size:13px;color:var(--purple);font-weight:800;letter-spacing:4px;text-transform:uppercase;}
-        .login-box{
-            background:var(--panel);border:1.5px solid var(--border);border-radius:20px;
-            padding:32px 28px;width:340px;display:flex;flex-direction:column;gap:14px;
-            box-shadow:0 20px 60px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.04);
-        }
-        .login-box label{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
-        input[type=text],input[type=password],input[type=email],input[type=number],
-        select,textarea{
-            width:100%;padding:11px 14px;background:rgba(255,255,255,0.05);
-            border:1.5px solid var(--border);border-radius:10px;color:var(--text);
-            font-size:14px;font-family:'Nunito',sans-serif;font-weight:700;outline:none;
-            transition:border-color 0.2s;
-        }
-        input:focus,select:focus,textarea:focus{border-color:var(--teal);}
-        textarea{resize:vertical;}
-        select option{background:#0b1a2e;}
-        .err{color:var(--red);font-size:12px;font-weight:800;text-align:center;}
-
-        /* ===== BUTTONS ===== */
-        .btn{
-            padding:11px 20px;border:none;border-radius:10px;
-            font-family:'Nunito',sans-serif;font-size:14px;font-weight:900;
-            cursor:pointer;transition:opacity 0.15s,transform 0.1s;white-space:nowrap;
-        }
-        .btn:active{opacity:0.75;transform:translateY(2px);}
-        .btn:disabled{opacity:0.4;cursor:not-allowed;}
-        .btn-teal{background:linear-gradient(135deg,#00d4e8,#007a90);color:#fff;box-shadow:0 4px 0 #005060;}
-        .btn-gold{background:linear-gradient(135deg,#ffe040,#ff8c00);color:#fff;box-shadow:0 4px 0 #cc5500;}
-        .btn-red{background:linear-gradient(135deg,#ff3355,#cc0033);color:#fff;box-shadow:0 3px 0 #880022;}
-        .btn-green{background:linear-gradient(135deg,#00e676,#00a152);color:#000;box-shadow:0 3px 0 #006030;}
-        .btn-grey{background:linear-gradient(135deg,#546e7a,#37474f);color:#fff;box-shadow:0 3px 0 #1c313a;}
-        .btn-purple{background:linear-gradient(135deg,#c678ff,#7c22ce);color:#fff;box-shadow:0 3px 0 #4a0080;}
-        .btn-orange{background:linear-gradient(135deg,#ff9800,#e65100);color:#fff;box-shadow:0 3px 0 #993000;}
-        .btn-sm{padding:7px 14px;font-size:12px;}
-        .btn-xs{padding:5px 10px;font-size:11px;}
-        .btn-w{width:100%;}
-
-        /* ===== APP SHELL ===== */
-        #app{display:none;}
-        .topbar{
-            background:var(--panel);border-bottom:1.5px solid var(--border);
-            padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;
-            position:sticky;top:0;z-index:100;
-            box-shadow:0 2px 20px rgba(0,0,0,0.4);
-        }
-        .topbar-brand{font-family:'Luckiest Guy',cursive;font-size:22px;color:var(--gold);display:flex;align-items:center;gap:8px;}
-        .super-badge{
-            background:linear-gradient(135deg,#c678ff,#7c22ce);
-            color:#fff;font-size:10px;font-family:'Nunito',sans-serif;font-weight:900;
-            padding:3px 8px;border-radius:20px;letter-spacing:1px;
-        }
-        .topbar-right{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);}
-        .online-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
-        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-
-        .layout{display:flex;min-height:calc(100vh - 56px);}
-
-        /* SIDEBAR */
-        .sidebar{
-            width:230px;background:var(--panel);border-right:1.5px solid var(--border);
-            padding:16px 10px;display:flex;flex-direction:column;gap:2px;flex-shrink:0;
-            overflow-y:auto;
-        }
-        .nav-group-label{font-size:10px;font-weight:900;color:var(--muted);letter-spacing:2px;
-            text-transform:uppercase;padding:10px 12px 4px;margin-top:8px;}
-        .nav-item{
-            padding:9px 12px;border-radius:10px;cursor:pointer;font-weight:800;font-size:13px;
-            color:var(--muted);display:flex;align-items:center;gap:8px;transition:all 0.15s;
-        }
-        .nav-item:hover{background:rgba(255,255,255,0.05);color:var(--text);}
-        .nav-item.active{background:rgba(0,212,232,0.12);color:var(--teal);border-left:3px solid var(--teal);padding-left:9px;}
-        .nav-badge{background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:auto;}
-
-        .content{flex:1;padding:24px;overflow-y:auto;min-width:0;}
-
-        /* SECTIONS */
-        .section{display:none;}
-        .section.active{display:block;}
-        .section-title{
-            font-family:'Luckiest Guy',cursive;font-size:20px;color:var(--gold);
-            margin-bottom:20px;display:flex;align-items:center;gap:8px;
+        :root {
+            --bg-dark: #004050;
+            --bg-card: rgba(10, 40, 50, 0.95);
+            --primary: #ffcc00;
+            --primary-dark: #cc9900;
+            --secondary: #00c6d4;
+            --text-main: #ffffff;
+            --text-muted: #aadddd;
+            --border-color: rgba(100, 200, 220, 0.3);
+            --success: #4caf50;
+            --success-dark: #2e7d32;
+            --danger: #ff3355;
+            --danger-dark: #cc0033;
+            --purple: #9c27b0;
+            --btn-shadow: 0 4px 0;
         }
 
-        /* STAT CARDS */
-        .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:24px;}
-        .stat-card{
-            background:var(--panel);border:1.5px solid var(--border);border-radius:14px;
-            padding:18px 16px;position:relative;overflow:hidden;
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #0a8fa0 0%, #006070 40%, #004050 100%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
         }
-        .stat-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:2px;}
-        .stat-card.gold::before{background:var(--gold);}
-        .stat-card.teal::before{background:var(--teal);}
-        .stat-card.red::before{background:var(--red);}
-        .stat-card.green::before{background:var(--green);}
-        .stat-card.purple::before{background:var(--purple);}
-        .stat-card.orange::before{background:var(--orange);}
-        .stat-icon{font-size:26px;margin-bottom:6px;}
-        .stat-val{font-family:'Luckiest Guy',cursive;font-size:28px;color:var(--gold);}
-        .stat-label{font-size:11px;color:var(--muted);margin-top:2px;font-weight:800;}
-        .stat-change{font-size:10px;color:var(--green);margin-top:2px;}
 
-        /* TABLE */
-        .table-wrap{background:var(--panel);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px;}
-        .table-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-        .table-header-title{font-size:13px;font-weight:900;color:var(--teal);}
-        table{width:100%;border-collapse:collapse;}
-        th{background:rgba(0,212,232,0.06);padding:9px 14px;text-align:left;font-size:11px;font-weight:900;color:var(--teal);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border);}
-        td{padding:9px 14px;font-size:12px;border-top:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
-        tr:hover td{background:rgba(255,255,255,0.02);}
-        .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:900;}
-        .badge-pending{background:rgba(255,204,0,0.12);color:var(--gold);border:1px solid rgba(255,204,0,0.3);}
-        .badge-approved{background:rgba(0,230,118,0.12);color:var(--green);border:1px solid rgba(0,230,118,0.3);}
-        .badge-rejected{background:rgba(255,51,85,0.12);color:var(--red);border:1px solid rgba(255,51,85,0.3);}
-        .badge-banned{background:rgba(255,51,85,0.2);color:var(--red);}
-        .badge-active{background:rgba(0,230,118,0.15);color:var(--green);}
-
-        /* FORM CARD */
-        .form-card{background:var(--panel);border:1.5px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
-        .form-card-title{font-size:14px;font-weight:900;color:var(--teal);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
-        .form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
-        .form-col{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px;}
-        .form-col label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:0.5px;}
-        .form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
-
-        /* SEARCH BAR */
-        .toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
-        .toolbar input{flex:1;min-width:180px;}
-
-        /* PAGINATION */
-        .pagination{display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap;}
-        .page-btn{padding:5px 12px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;color:var(--text);font-weight:700;}
-        .page-btn:hover{background:rgba(0,212,232,0.1);border-color:var(--teal);}
-        .page-info{font-size:11px;color:var(--muted);}
-
-        /* LIVE CHART AREA */
-        .chart-area{background:var(--panel);border:1.5px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
-        .chart-bar-wrap{display:flex;align-items:flex-end;gap:4px;height:80px;margin-top:12px;}
-        .chart-bar{flex:1;background:linear-gradient(180deg,var(--teal),rgba(0,212,232,0.3));border-radius:4px 4px 0 0;min-height:2px;transition:height 0.4s;}
-        .chart-labels{display:flex;gap:4px;margin-top:4px;}
-        .chart-label{flex:1;text-align:center;font-size:9px;color:var(--muted);}
-
-        /* TOAST */
-        #admin-toast{
-            position:fixed;bottom:24px;right:24px;
-            background:rgba(0,0,0,0.92);border:1.5px solid var(--gold);border-radius:12px;
-            padding:11px 20px;font-size:13px;font-weight:800;color:#fff;
-            z-index:9999;display:none;animation:toastIn 0.3s ease;
-            box-shadow:0 8px 24px rgba(0,0,0,0.5);
+        h1, h2, h3, .luckiest {
+            font-family: 'Luckiest Guy', cursive;
+            letter-spacing: 1px;
+            font-weight: normal;
+            margin: 0;
+            text-shadow: 2px 3px 0 rgba(0,0,0,0.4);
         }
-        @keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-        /* MODAL (overlay) */
-        .modal-overlay{
-            display:none;position:fixed;top:0;left:0;width:100%;height:100%;
-            background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);
-            z-index:200;justify-content:center;align-items:center;
+        /* --- LOGIN SCREEN --- */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 30, 40, 0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
         }
-        .modal-overlay.open{display:flex;}
-        .modal-box{
-            background:var(--panel2);border:1.5px solid var(--border);border-radius:18px;
-            padding:24px;width:92%;max-width:420px;
-            box-shadow:0 24px 80px rgba(0,0,0,0.8);
+        .login-box {
+            background: linear-gradient(160deg, #0d3040, #071e28);
+            padding: 40px; border-radius: 24px;
+            width: 90%; max-width: 380px; text-align: center;
+            border: 3px solid var(--border-color);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
         }
-        .modal-title{font-family:'Luckiest Guy',cursive;font-size:20px;color:var(--gold);margin-bottom:14px;}
-
-        /* MISC */
-        .loading{text-align:center;color:var(--muted);padding:24px;font-size:13px;}
-        .empty{text-align:center;color:var(--muted);padding:32px;font-size:13px;}
-        .mono{font-family:'Courier New',monospace;font-size:11px;}
-        .red{color:var(--red);}  .green{color:var(--green);}  .gold{color:var(--gold);}
-        .divider{height:1px;background:var(--border);margin:14px 0;}
-        .tag{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);
-            border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--muted);}
-
-        /* DANGER ZONE */
-        .danger-zone{background:rgba(255,51,85,0.05);border:1px solid rgba(255,51,85,0.2);border-radius:12px;padding:16px;}
-        .danger-title{color:var(--red);font-size:13px;font-weight:900;margin-bottom:10px;}
-
-        @media(max-width:700px){
-            .sidebar{width:48px;padding:10px 4px;}
-            .nav-item span:not(:first-child){display:none;}
-            .nav-group-label{display:none;}
-            .content{padding:12px;}
-            .stats-grid{grid-template-columns:1fr 1fr;}
+        .login-box h2 { color: var(--primary); font-size: 32px; margin-bottom: 20px; }
+        .login-box input {
+            width: 100%; padding: 14px; margin: 10px 0;
+            background: rgba(255,255,255,0.1); border: 2px solid var(--border-color); 
+            color: white; border-radius: 12px; box-sizing: border-box; font-family: 'Nunito', sans-serif; font-weight: bold; outline: none;
         }
+        .login-box input:focus { border-color: var(--primary); }
+
+        /* --- BUTTONS --- */
+        .btn {
+            padding: 10px 15px; border: none; border-radius: 12px; cursor: pointer; 
+            font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 14px; 
+            color: white; transition: transform 0.1s, box-shadow 0.1s; text-align: center;
+        }
+        .btn:active { transform: translateY(4px); box-shadow: none !important; }
+        
+        .btn-gold { background: linear-gradient(180deg,#ffe040,#ff8c00); box-shadow: var(--btn-shadow) #cc6600; text-shadow: 1px 2px 0 rgba(0,0,0,0.3); }
+        .btn-red { background: linear-gradient(180deg,#ff3355,#cc0033); box-shadow: var(--btn-shadow) #880022; }
+        .btn-green { background: linear-gradient(180deg,#4caf50,#2e7d32); box-shadow: var(--btn-shadow) #1b5e20; }
+        .btn-blue { background: linear-gradient(180deg,#1976d2,#0d47a1); box-shadow: var(--btn-shadow) #002171; }
+        .btn-purple { background: linear-gradient(180deg,#9c27b0,#6a0080); box-shadow: var(--btn-shadow) #4a0060; }
+        .btn-dark { background: linear-gradient(180deg,#546e7a,#37474f); box-shadow: var(--btn-shadow) #1c313a; }
+
+        /* --- ADMIN LAYOUT --- */
+        #admin-content { display: none; max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 20px; border-bottom: 2px dashed rgba(255,255,255,0.2); margin-bottom: 30px;
+        }
+
+        .nav-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 25px; }
+        .nav-btn {
+            background: rgba(255,255,255,0.1); border: 2px solid transparent; color: var(--text-muted);
+            padding: 12px 20px; cursor: pointer; border-radius: 14px; font-weight: 800; transition: all 0.2s;
+            font-family: 'Nunito', sans-serif;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.2); }
+        .nav-btn.active { background: linear-gradient(180deg,#00c6d4,#007a8a); color: white; border-color: #fff; box-shadow: 0 4px 0 #005060; transform: translateY(-2px); }
+
+        .admin-section { display: none; animation: fadeIn 0.3s; }
+        .admin-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- CARDS & GRID --- */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .dash-card { 
+            background: var(--bg-card); padding: 25px; border-radius: 20px; 
+            border: 2px solid var(--border-color); text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .dash-card .count { font-size: 42px; color: var(--primary); margin: 10px 0; font-family: 'Luckiest Guy', cursive; text-shadow: 2px 3px 0 rgba(0,0,0,0.5); }
+        .dash-card h3 { color: var(--secondary); font-size: 20px; }
+        
+        .grid-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; margin-top: 15px;}
+        .card-item {
+            background: var(--bg-card); border: 2px solid var(--border-color);
+            border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3); position: relative;
+        }
+        .card-item.banned-user { border-color: var(--danger); opacity: 0.8; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .username { font-size: 20px; font-weight: 900; color: var(--primary); }
+        .userid { font-size: 12px; color: var(--text-muted); font-family: monospace; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 6px;}
+        
+        .card-stats { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; }
+        .stat-row:last-child { border: none; padding: 0; }
+        .stat-val { font-weight: 900; color: white; font-size: 16px; }
+
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-muted); font-weight: 800; font-size: 14px; }
+        .form-group input, .form-group select { 
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.4); 
+            border: 2px solid var(--border-color); color: white; border-radius: 12px; 
+            box-sizing: border-box; font-family: 'Nunito', sans-serif; font-weight: bold; outline: none;
+        }
+        .form-group input:focus { border-color: var(--primary); }
+
+        .loader { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Utility Badges */
+        .badge { padding: 3px 8px; border-radius: 8px; font-size: 11px; font-weight: 900; color: #fff; }
+        .badge-pending { background: #ff9800; color: black; }
+        .badge-success { background: #4caf50; }
+        .badge-danger { background: #ff3355; }
     </style>
 </head>
 <body>
 
-<!-- ===== LOGIN ===== -->
-<div id="login-screen">
-    <div class="login-logo">🍉 Fruit Cut</div>
-    <div class="login-sub">⚡ Super Admin Panel</div>
-    <div class="login-box">
-        <label>Admin UID</label>
-        <input type="password" id="uid-input" placeholder="Enter your UID" autocomplete="off">
-        <button class="btn btn-gold btn-w" onclick="checkUID()">🔐 Access Panel</button>
-        <div class="err" id="uid-err"></div>
-    </div>
-</div>
-
-<!-- ===== MAIN APP ===== -->
-<div id="app">
-    <div class="topbar">
-        <div class="topbar-brand">
-            🍉 Fruit Cut
-            <span class="super-badge">⚡ SUPER ADMIN</span>
-        </div>
-        <div class="topbar-right">
-            <div class="online-dot"></div>
-            <span id="admin-uid-label" style="color:var(--teal);font-weight:900;"></span>
-            <button class="btn btn-grey btn-sm" onclick="logout()">Exit</button>
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="font-size: 42px;">🍉 FRUIT CUT<br><span style="color:#fff; font-size: 24px; -webkit-text-stroke: 1px #000;">ADMIN PANEL</span></h2>
+            <form id="loginForm">
+                <input type="email" id="adminEmail" placeholder="Admin Email" required>
+                <input type="password" id="adminPass" placeholder="Password" required>
+                <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: 15px; font-size: 18px; padding: 14px;">🚀 LOGIN</button>
+            </form>
+            <p id="loginMsg" style="color:#ff3355; margin-top:10px; font-weight:bold;"></p>
         </div>
     </div>
 
-    <div class="layout">
-        <!-- SIDEBAR -->
-        <div class="sidebar">
-            <div class="nav-group-label">Overview</div>
-            <div class="nav-item active" onclick="nav('dashboard')" id="nav-dashboard"><span>📊</span><span>Dashboard</span></div>
+    <!-- MAIN ADMIN CONTENT -->
+    <div id="admin-content">
+        <header class="admin-header">
+            <h1 style="color:var(--primary); font-size: 32px;">🍉 FRUIT CUT <span style="font-size:16px; color:#fff; font-family:'Nunito'; font-weight:900;">SUPER ADMIN</span></h1>
+            <button class="btn btn-red" id="logoutBtn">🚪 Logout</button>
+        </header>
 
-            <div class="nav-group-label">Users</div>
-            <div class="nav-item" onclick="nav('users')" id="nav-users"><span>👥</span><span>All Users</span></div>
-            <div class="nav-item" onclick="nav('search-user')" id="nav-search-user"><span>🔍</span><span>Search User</span></div>
+        <nav class="nav-buttons">
+            <button class="nav-btn active" data-target="dashboard">📊 Dashboard</button>
+            <button class="nav-btn" data-target="users">👥 Manage Users</button>
+            <button class="nav-btn" data-target="withdrawals">💳 Withdrawals <span id="nav-pending-count" style="background:#ff3355; color:white; padding:2px 8px; border-radius:12px; font-size:12px; display:none; margin-left:5px;">0</span></button>
+            <button class="nav-btn" data-target="manage-tasks">📋 Manage Tasks</button>
+            <button class="nav-btn" data-target="promo-codes" style="border-color:var(--purple); color:#e066ff;">🎁 Promo Codes</button>
+        </nav>
 
-            <div class="nav-group-label">Finance</div>
-            <div class="nav-item" onclick="nav('withdrawals')" id="nav-withdrawals"><span>💸</span><span>Withdrawals</span><span class="nav-badge" id="pending-badge">0</span></div>
-            <div class="nav-item" onclick="nav('economy')" id="nav-economy"><span>📈</span><span>Economy</span></div>
-
-            <div class="nav-group-label">Content</div>
-            <div class="nav-item" onclick="nav('tasks')" id="nav-tasks"><span>📋</span><span>Tasks</span></div>
-            <div class="nav-item" onclick="nav('broadcast')" id="nav-broadcast"><span>📢</span><span>Broadcast</span></div>
-
-            <div class="nav-group-label">System</div>
-            <div class="nav-item" onclick="nav('config')" id="nav-config"><span>⚙️</span><span>Config</span></div>
-            <div class="nav-item" onclick="nav('logs')" id="nav-logs"><span>📜</span><span>Logs</span></div>
-            <div class="nav-item" onclick="nav('danger')" id="nav-danger"><span>⚠️</span><span>Danger Zone</span></div>
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="admin-section active">
+            <h2 style="color: var(--secondary); margin-bottom: 20px;">Game Overview</h2>
+            <div class="dashboard-grid">
+                <div class="dash-card"><h3>👥 Total Players</h3><p class="count" id="dash-total-users">...</p></div>
+                <div class="dash-card"><h3>🔥 Joined Today</h3><p class="count" id="dash-daily-users">0</p></div>
+                <div class="dash-card"><h3>⏳ Pending Payouts</h3><p class="count" id="dash-pending-withdrawals">0</p></div>
+                <div class="dash-card"><h3>📋 Active Tasks</h3><p class="count" id="dash-active-tasks">0</p></div>
+            </div>
         </div>
 
-        <div class="content">
+        <!-- WITHDRAWALS -->
+        <div id="withdrawals" class="admin-section">
+            <h2 style="color: var(--primary); margin-bottom: 15px;">💳 Pending Withdrawals</h2>
+            <div id="withdrawals-list" class="grid-list"></div>
+        </div>
 
-            <!-- ====== DASHBOARD ====== -->
-            <div class="section active" id="section-dashboard">
-                <div class="section-title">📊 Dashboard</div>
-                <div class="stats-grid">
-                    <div class="stat-card teal"><div class="stat-icon">👥</div><div class="stat-val" id="s-users">—</div><div class="stat-label">Total Users</div></div>
-                    <div class="stat-card gold"><div class="stat-icon">💸</div><div class="stat-val" id="s-pending">—</div><div class="stat-label">Pending Withdrawals</div></div>
-                    <div class="stat-card purple"><div class="stat-icon">💎</div><div class="stat-val" id="s-diamonds">—</div><div class="stat-label">Total Diamonds</div></div>
-                    <div class="stat-card orange"><div class="stat-icon">🪙</div><div class="stat-val" id="s-coins">—</div><div class="stat-label">Total Coins</div></div>
-                    <div class="stat-card green"><div class="stat-icon">🎮</div><div class="stat-val" id="s-games">—</div><div class="stat-label">Games Played</div></div>
-                    <div class="stat-card red"><div class="stat-icon">🔗</div><div class="stat-val" id="s-refs">—</div><div class="stat-label">Total Referrals</div></div>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
-                    <div class="chart-area">
-                        <div style="font-size:12px;font-weight:900;color:var(--teal);">💎 Top Diamond Holders</div>
-                        <div id="top-diamonds-list" style="margin-top:10px;"></div>
-                    </div>
-                    <div class="chart-area">
-                        <div style="font-size:12px;font-weight:900;color:var(--gold);">🏆 Top Coin Earners</div>
-                        <div id="top-coins-list" style="margin-top:10px;"></div>
-                    </div>
-                </div>
-
-                <div class="table-wrap">
-                    <div class="table-header"><span class="table-header-title">⏳ Pending Withdrawals</span><button class="btn btn-teal btn-xs" onclick="nav('withdrawals')">View All →</button></div>
-                    <table><thead><tr><th>User</th><th>Method</th><th>Amount</th><th>Address</th><th>Action</th></tr></thead>
-                    <tbody id="dash-w"></tbody></table>
+        <!-- USERS -->
+        <div id="users" class="admin-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:20px;">
+                <h2 style="color: var(--primary);">👥 User Management</h2>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="userSearch" placeholder="Search ID or Username" style="padding:10px; width:220px; background:rgba(0,0,0,0.5); color:white; border:2px solid var(--border-color); border-radius:12px; font-weight:bold; outline:none;"> 
+                    <button onclick="searchUser()" class="btn btn-blue">🔍 Search</button>
+                    <button onclick="loadUsers()" class="btn btn-dark">🔄 Reset</button>
                 </div>
             </div>
+            <div id="users-list" class="grid-list"></div>
+        </div>
 
-            <!-- ====== ALL USERS ====== -->
-            <div class="section" id="section-users">
-                <div class="section-title">👥 All Users</div>
-                <div class="toolbar">
-                    <input type="text" id="user-q" placeholder="Search username / ID..." oninput="searchUsers()">
-                    <button class="btn btn-teal btn-sm" onclick="loadUsers()">🔄</button>
-                    <button class="btn btn-gold btn-sm" onclick="exportUsersCSV()">⬇️ CSV</button>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>#</th><th>TG ID</th><th>Username</th><th>🪙</th><th>💎</th><th>Stage</th><th>Games</th><th>Refs</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody id="users-tbody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody>
-                    </table>
-                </div>
-                <div class="pagination" id="users-pg"></div>
-            </div>
-
-            <!-- ====== SEARCH USER ====== -->
-            <div class="section" id="section-search-user">
-                <div class="section-title">🔍 Search & Edit User</div>
-                <div class="form-card">
-                    <div class="form-card-title">Find User</div>
-                    <div class="form-row">
-                        <div class="form-col">
-                            <label>Telegram ID or Username</label>
-                            <input type="text" id="su-query" placeholder="e.g. 123456789 or @username">
+        <!-- MANAGE TASKS (Create & List) -->
+        <div id="manage-tasks" class="admin-section">
+            <h2 style="color: var(--secondary); margin-bottom: 20px;">📋 Create & Manage Tasks</h2>
+            
+            <!-- Create Task Form -->
+            <div style="background:var(--bg-card); padding:25px; border-radius:20px; border:2px solid var(--secondary); margin-bottom: 30px; max-width: 600px;">
+                <h3 style="color:white; margin-bottom:15px; font-family:'Nunito'; font-weight:900;">➕ Create New Task</h3>
+                <form id="createTaskForm">
+                    <div class="form-group">
+                        <label>Task Name</label>
+                        <input type="text" id="task-name" placeholder="e.g. Join Our Telegram" required>
+                    </div>
+                    <div style="display:flex; gap:15px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Reward Coins (🪙)</label>
+                            <input type="number" id="task-coins" placeholder="0" value="0" min="0">
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Reward Diamonds (💎)</label>
+                            <input type="number" id="task-gems" placeholder="0" value="0" min="0">
                         </div>
                     </div>
-                    <div class="form-actions"><button class="btn btn-teal" onclick="searchSingleUser()">🔍 Search</button></div>
-                </div>
-
-                <div id="su-result" style="display:none;" class="form-card">
-                    <div class="form-card-title">✏️ Edit User — <span id="su-name" style="color:#fff;"></span></div>
-                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;" id="su-stats-grid"></div>
-                    <div class="divider"></div>
-                    <div class="form-row">
-                        <div class="form-col"><label>Add/Sub Coins (±)</label><input type="number" id="su-coins" placeholder="e.g. 500 or -100"></div>
-                        <div class="form-col"><label>Add/Sub Diamonds (±)</label><input type="number" id="su-gems" placeholder="e.g. 10 or -5"></div>
-                        <div class="form-col"><label>Set Stage</label><input type="number" id="su-stage" placeholder="Leave blank"></div>
-                        <div class="form-col"><label>Set Tokens (0–10)</label><input type="number" id="su-tokens" min="0" max="10" placeholder="Leave blank"></div>
-                    </div>
-                    <div class="form-actions">
-                        <button class="btn btn-gold" onclick="saveUser()">💾 Save</button>
-                        <button class="btn btn-red btn-sm" onclick="banUser()">🚫 Ban</button>
-                        <button class="btn btn-green btn-sm" onclick="unbanUser()">✅ Unban</button>
-                        <button class="btn btn-purple btn-sm" onclick="resetUserDaily()">🔄 Reset Daily</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ====== WITHDRAWALS ====== -->
-            <div class="section" id="section-withdrawals">
-                <div class="section-title">💸 Withdrawals</div>
-                <div class="toolbar">
-                    <button class="btn btn-grey btn-sm" onclick="wFilter='all';renderW()">All</button>
-                    <button class="btn btn-gold btn-sm" onclick="wFilter='pending';renderW()">⏳ Pending</button>
-                    <button class="btn btn-green btn-sm" onclick="wFilter='approved';renderW()">✅ Approved</button>
-                    <button class="btn btn-red btn-sm" onclick="wFilter='rejected';renderW()">❌ Rejected</button>
-                    <button class="btn btn-teal btn-sm" onclick="loadWithdrawals()">🔄</button>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>Time</th><th>User</th><th>Method</th><th>Address</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody id="w-tbody"><tr><td colspan="7" class="loading">Loading...</td></tr></tbody>
-                    </table>
-                </div>
-                <div class="pagination" id="w-pg"></div>
-            </div>
-
-            <!-- ====== ECONOMY ====== -->
-            <div class="section" id="section-economy">
-                <div class="section-title">📈 Economy Overview</div>
-                <div class="stats-grid">
-                    <div class="stat-card gold"><div class="stat-icon">💎</div><div class="stat-val" id="eco-total-diamonds">—</div><div class="stat-label">Total Diamonds in Circulation</div></div>
-                    <div class="stat-card orange"><div class="stat-icon">🪙</div><div class="stat-val" id="eco-total-coins">—</div><div class="stat-label">Total Coins in Circulation</div></div>
-                    <div class="stat-card teal"><div class="stat-icon">💸</div><div class="stat-val" id="eco-total-withdrawn">—</div><div class="stat-label">Total Diamonds Withdrawn</div></div>
-                    <div class="stat-card green"><div class="stat-icon">🏆</div><div class="stat-val" id="eco-avg-stage">—</div><div class="stat-label">Avg User Stage</div></div>
-                </div>
-                <div class="form-card">
-                    <div class="form-card-title">💰 Bulk Reward (Give to ALL users)</div>
-                    <div class="form-row">
-                        <div class="form-col"><label>Coins to Add</label><input type="number" id="bulk-coins" placeholder="0" min="0"></div>
-                        <div class="form-col"><label>Diamonds to Add</label><input type="number" id="bulk-gems" placeholder="0" min="0"></div>
-                        <div class="form-col"><label>Tokens to Add</label><input type="number" id="bulk-tokens" placeholder="0" min="0" max="10"></div>
-                    </div>
-                    <div class="form-actions">
-                        <button class="btn btn-gold" onclick="bulkReward()">🎁 Give to All Users</button>
-                    </div>
-                    <div style="font-size:11px;color:var(--muted);margin-top:8px;">⚠️ This will add to every user's balance. Cannot be undone.</div>
-                </div>
-            </div>
-
-            <!-- ====== TASKS ====== -->
-            <div class="section" id="section-tasks">
-                <div class="section-title">📋 Tasks</div>
-                <div class="form-card">
-                    <div class="form-card-title">➕ New Task</div>
-                    <div class="form-row">
-                        <div class="form-col" style="flex:2;"><label>Task Name</label><input type="text" id="t-name" placeholder="Join our Telegram channel"></div>
-                        <div class="form-col" style="flex:0 0 70px;"><label>Icon</label><input type="text" id="t-icon" placeholder="📢" maxlength="4"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-col"><label>🪙 Coins Reward</label><input type="number" id="t-coins" placeholder="0" min="0"></div>
-                        <div class="form-col"><label>💎 Diamonds Reward</label><input type="number" id="t-gems" placeholder="0" min="0"></div>
-                        <div class="form-col"><label>Sort Order</label><input type="number" id="t-order" placeholder="1"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-col"><label>Link URL</label><input type="text" id="t-link" placeholder="https://t.me/channel"></div>
-                    </div>
-                    <div class="form-actions"><button class="btn btn-teal" onclick="addTask()">➕ Add Task</button></div>
-                </div>
-                <div id="tasks-list"><div class="loading">Loading...</div></div>
-            </div>
-
-            <!-- ====== BROADCAST ====== -->
-            <div class="section" id="section-broadcast">
-                <div class="section-title">📢 Broadcast</div>
-                <div class="form-card">
-                    <div class="form-card-title">Send to All Users</div>
-                    <div class="form-row">
-                        <div class="form-col"><label>Title</label><input type="text" id="bc-title" placeholder="🎉 Big News!"></div>
-                        <div class="form-col" style="flex:0 0 140px;"><label>Type</label>
-                            <select id="bc-type"><option value="info">ℹ️ Info</option><option value="reward">🎁 Reward</option><option value="maintenance">⚠️ Maintenance</option><option value="event">🎪 Event</option></select>
+                    <div style="display:flex; gap:15px;">
+                        <div class="form-group" style="flex:1;">
+                            <label>Icon Emoji</label>
+                            <input type="text" id="task-icon" placeholder="e.g. ✈️" required>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label>Sort Order (Lowest first)</label>
+                            <input type="number" id="task-order" value="1" required>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-col"><label>Message</label><textarea id="bc-body" rows="3" placeholder="Your announcement..."></textarea></div>
+                    <div class="form-group">
+                        <label>Target URL / Bot Link</label>
+                        <input type="url" id="task-link" placeholder="https://t.me/..." required>
                     </div>
-                    <div class="form-row">
-                        <div class="form-col"><label>Bonus 🪙 Coins</label><input type="number" id="bc-coins" placeholder="0"></div>
-                        <div class="form-col"><label>Bonus 💎 Diamonds</label><input type="number" id="bc-gems" placeholder="0"></div>
-                    </div>
-                    <div class="form-actions"><button class="btn btn-gold" onclick="sendBroadcast()">📢 Send Broadcast</button></div>
-                </div>
-                <div id="bc-list"><div class="loading">Loading...</div></div>
+                    <button type="submit" class="btn btn-green" style="width:100%; font-size:16px; padding:12px;">✅ Publish Task</button>
+                    <p id="task-msg" style="text-align:center; margin-top:10px; font-weight:bold;"></p>
+                </form>
             </div>
 
-            <!-- ====== CONFIG ====== -->
-            <div class="section" id="section-config">
-                <div class="section-title">⚙️ Game Config</div>
-                <div class="form-card">
-                    <div class="form-card-title">🎮 Core Settings</div>
-                    <div class="form-row">
-                        <div class="form-col"><label>Token Refill (minutes)</label><input type="number" id="cfg-refill" placeholder="60"></div>
-                        <div class="form-col"><label>Max Tokens</label><input type="number" id="cfg-maxtoken" placeholder="10"></div>
-                        <div class="form-col"><label>Min Withdraw 💎</label><input type="number" id="cfg-minw" placeholder="100"></div>
+            <!-- Task List -->
+            <h3 style="color: white; margin-bottom: 10px; font-family:'Nunito'; font-weight:900;">📌 Active Tasks</h3>
+            <div id="tasks-list" class="grid-list"></div>
+        </div>
+
+        <!-- PROMO CODES -->
+        <div id="promo-codes" class="admin-section">
+            <h2 style="color: var(--purple); margin-bottom: 20px;">🎁 Generate Promo Codes</h2>
+            
+            <div style="background:var(--bg-card); padding:25px; border-radius:20px; border:2px solid var(--purple); max-width:500px; margin-bottom:20px;">
+                <div style="display:flex; gap:15px; margin-bottom:15px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Reward Type</label>
+                        <select id="promoType">
+                            <option value="coins">🪙 Coins</option>
+                            <option value="gems">💎 Diamonds</option>
+                            <option value="tokens">🎮 Tokens</option>
+                        </select>
                     </div>
-                    <div class="form-row">
-                        <div class="form-col"><label>Referral 💎 Reward</label><input type="number" id="cfg-refgem" placeholder="5"></div>
-                        <div class="form-col"><label>Referral 🎮 Token</label><input type="number" id="cfg-reftoken" placeholder="3"></div>
-                        <div class="form-col"><label>Maintenance</label>
-                            <select id="cfg-maint"><option value="false">✅ Live</option><option value="true">🔧 Maintenance</option></select>
-                        </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Amount</label>
+                        <input type="number" id="promoAmount" value="50" min="1">
                     </div>
-                    <div class="form-row">
-                        <div class="form-col"><label>Lootbox Min Claim pts</label><input type="number" id="cfg-lb-min" placeholder="300"></div>
-                        <div class="form-col"><label>Lootbox Max pts</label><input type="number" id="cfg-lb-max" placeholder="1000"></div>
-                        <div class="form-col"><label>Daily Ad Lottery Limit</label><input type="number" id="cfg-lottery-daily" placeholder="10"></div>
-                    </div>
-                    <div class="form-actions">
-                        <button class="btn btn-teal" onclick="saveConfig()">💾 Save Config</button>
-                        <button class="btn btn-grey btn-sm" onclick="loadConfig()">🔄 Reload</button>
+                    <div class="form-group" style="flex:1;">
+                        <label>Max Uses</label>
+                        <input type="number" id="promoMax" value="100" min="1">
                     </div>
                 </div>
+                
+                <button id="promoBtn" class="btn btn-purple" style="width:100%; font-size:16px;">✨ Generate Code (Valid 24h)</button>
+                
+                <div id="generatedCode" style="margin-top:15px; text-align:center; min-height:40px; font-weight:900;"></div>
             </div>
 
-            <!-- ====== LOGS ====== -->
-            <div class="section" id="section-logs">
-                <div class="section-title">📜 Activity Logs</div>
-                <div class="toolbar">
-                    <button class="btn btn-teal btn-sm" onclick="loadLogs()">🔄 Refresh</button>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead><tr><th>Time</th><th>Action</th><th>User</th><th>Details</th></tr></thead>
-                        <tbody id="logs-tbody"><tr><td colspan="4" class="loading">Loading...</td></tr></tbody>
-                    </table>
-                </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                <h3 style="color: white; font-family:'Nunito'; font-weight:900;">🎟️ Active Codes</h3>
+                <button onclick="clearExpiredPromos()" class="btn btn-red" style="padding: 6px 12px;">🗑 Clear Expired</button>
             </div>
+            <div id="promo-list" class="grid-list"></div>
+        </div>
+    </div>
 
-            <!-- ====== DANGER ZONE ====== -->
-            <div class="section" id="section-danger">
-                <div class="section-title" style="color:var(--red);">⚠️ Danger Zone</div>
-                <div class="danger-zone" style="margin-bottom:14px;">
-                    <div class="danger-title">🔄 Reset Operations</div>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <button class="btn btn-orange btn-sm" onclick="resetAllDaily()">Reset All Daily Limits</button>
-                        <button class="btn btn-orange btn-sm" onclick="resetAllLottery()">Reset All Lottery Spins</button>
-                    </div>
-                </div>
-                <div class="danger-zone">
-                    <div class="danger-title">☢️ Destructive Operations</div>
-                    <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">These cannot be undone. Confirmation required.</p>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <button class="btn btn-red btn-sm" onclick="deleteAllBroadcasts()">🗑️ Clear All Broadcasts</button>
-                    </div>
-                </div>
-            </div>
+    <!-- FIREBASE SDK 12.12.1 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, getDoc, query, where, orderBy, doc, updateDoc, increment, deleteDoc, setDoc, addDoc, serverTimestamp, runTransaction, Timestamp, limit, getCountFromServer, writeBatch } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-        </div><!-- /content -->
-    </div><!-- /layout -->
-</div><!-- /app -->
+        // Fruit Cut Game Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDH56nAHruchExL-kZOUv1MZS8forDWOH0",
+            authDomain: "fruit-cut-477ab.firebaseapp.com",
+            projectId: "fruit-cut-477ab",
+            storageBucket: "fruit-cut-477ab.firebasestorage.app",
+            messagingSenderId: "476402093190",
+            appId: "1:476402093190:web:382339ab1403de24751507",
+            measurementId: "G-MCBRFK1ZEJ"
+        };
 
-<div id="admin-toast"></div>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, writeBatch,
-             query, orderBy, limit, where, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-
-    const SUPER_ADMIN_UID = "cEyGO3hnXCYL7ZhIikNrSXgx39B2";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDH56nAHruchExL-kZOUv1MZS8forDWOH0",
-        authDomain: "fruit-cut-477ab.firebaseapp.com",
-        projectId: "fruit-cut-477ab",
-        storageBucket: "fruit-cut-477ab.firebasestorage.app",
-        messagingSenderId: "476402093190",
-        appId: "1:476402093190:web:382339ab1403de24751507"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // ── Toast ──
-    function toast(msg, dur=3200){
-        let t=document.getElementById('admin-toast');
-        t.textContent=msg; t.style.display='block';
-        clearTimeout(window._tt);
-        window._tt=setTimeout(()=>t.style.display='none',dur);
-    }
-
-    // ── UID Login ──
-    window.checkUID = function(){
-        let uid = document.getElementById('uid-input').value.trim();
-        if(uid === SUPER_ADMIN_UID){
-            document.getElementById('login-screen').style.display='none';
-            document.getElementById('app').style.display='block';
-            document.getElementById('admin-uid-label').textContent = uid.substring(0,8)+'…';
-            sessionStorage.setItem('sa_auth','1');
-            initApp();
-        } else {
-            document.getElementById('uid-err').textContent = '❌ Invalid UID. Access denied.';
-            setTimeout(()=>document.getElementById('uid-err').textContent='',3000);
-        }
-    };
-
-    // Allow Enter key on UID input
-    document.getElementById('uid-input').addEventListener('keydown', e=>{ if(e.key==='Enter') window.checkUID(); });
-
-    window.logout = function(){
-        sessionStorage.removeItem('sa_auth');
-        document.getElementById('login-screen').style.display='flex';
-        document.getElementById('app').style.display='none';
-        document.getElementById('uid-input').value='';
-    };
-
-    // Auto-login if session active
-    if(sessionStorage.getItem('sa_auth')==='1'){
-        document.getElementById('login-screen').style.display='none';
-        document.getElementById('app').style.display='block';
-        document.getElementById('admin-uid-label').textContent = SUPER_ADMIN_UID.substring(0,8)+'…';
-        setTimeout(initApp, 100);
-    }
-
-    // ── Navigation ──
-    window.nav = function(name){
-        document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-        document.getElementById('section-'+name).classList.add('active');
-        document.getElementById('nav-'+name).classList.add('active');
-        const loaders = {users:loadUsers, withdrawals:loadWithdrawals, tasks:loadTasks, broadcast:loadBroadcasts, config:loadConfig, logs:loadLogs, economy:loadEconomy};
-        if(loaders[name]) loaders[name]();
-    };
-
-    // ── Init ──
-    async function initApp(){
-        await loadDashboard();
-    }
-
-    // ═══════════════════════════════
-    //   DASHBOARD
-    // ═══════════════════════════════
-    async function loadDashboard(){
-        try {
-            const usersSnap = await getDocs(collection(db,'users'));
-            let totalUsers=0,totalDiamonds=0,totalCoins=0,totalGames=0,totalRefs=0;
-            let topDiamonds=[], topCoins=[];
-            usersSnap.forEach(d=>{
-                totalUsers++; let u=d.data();
-                totalDiamonds+=(u.gems||0); totalCoins+=(u.coins||0);
-                totalGames+=(u.gamesPlayed||0); totalRefs+=(u.referCount||0);
-                topDiamonds.push({name:u.username||d.id,val:u.gems||0});
-                topCoins.push({name:u.username||d.id,val:u.coins||0});
-            });
-            document.getElementById('s-users').textContent=totalUsers;
-            document.getElementById('s-diamonds').textContent=totalDiamonds.toFixed(1);
-            document.getElementById('s-coins').textContent=totalCoins;
-            document.getElementById('s-games').textContent=totalGames;
-            document.getElementById('s-refs').textContent=totalRefs;
-
-            topDiamonds.sort((a,b)=>b.val-a.val);
-            topCoins.sort((a,b)=>b.val-a.val);
-            document.getElementById('top-diamonds-list').innerHTML = topDiamonds.slice(0,5).map((u,i)=>`
-                <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;">
-                    <span style="color:var(--muted);">#${i+1} @${u.name}</span>
-                    <span class="gold">💎${u.val}</span>
-                </div>`).join('') || '<div class="empty">—</div>';
-            document.getElementById('top-coins-list').innerHTML = topCoins.slice(0,5).map((u,i)=>`
-                <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:12px;">
-                    <span style="color:var(--muted);">#${i+1} @${u.name}</span>
-                    <span style="color:var(--orange);">🪙${u.val}</span>
-                </div>`).join('') || '<div class="empty">—</div>';
-
-            // Pending withdrawals
-            const wSnap = await getDocs(query(collection(db,'withdrawals'),where('status','==','pending')));
-            let pendingCount=wSnap.size;
-            document.getElementById('s-pending').textContent=pendingCount;
-            document.getElementById('pending-badge').textContent=pendingCount;
-
-            let wRows='';
-            wSnap.forEach(d=>{
-                let w=d.data();
-                wRows+=`<tr>
-                    <td>@${w.username||w.userId}</td>
-                    <td>${w.method}</td>
-                    <td class="gold">💎${w.amount}</td>
-                    <td class="mono" style="max-width:100px;overflow:hidden;text-overflow:ellipsis;">${w.address||'—'}</td>
-                    <td>
-                        <button class="btn btn-green btn-xs" onclick="approveW('${d.id}','${w.userId}',${w.amount})">✅</button>
-                        <button class="btn btn-red btn-xs" onclick="rejectW('${d.id}','${w.userId}',${w.amount})">❌</button>
-                    </td>
-                </tr>`;
-            });
-            document.getElementById('dash-w').innerHTML = wRows||'<tr><td colspan="5" class="empty">No pending withdrawals 🎉</td></tr>';
-        } catch(e){ console.error(e); toast('❌ Dashboard error'); }
-    }
-
-    // ═══════════════════════════════
-    //   USERS
-    // ═══════════════════════════════
-    let allUsers=[], filtU=[], uPage=0, U_PP=20;
-    window.loadUsers = async function(){
-        document.getElementById('users-tbody').innerHTML='<tr><td colspan="10" class="loading">Loading...</td></tr>';
-        try {
-            const snap = await getDocs(query(collection(db,'users'),orderBy('coins','desc')));
-            allUsers=[]; snap.forEach(d=>allUsers.push({id:d.id,...d.data()}));
-            filtU=[...allUsers]; uPage=0; renderUsers();
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.searchUsers = function(){
-        let q=document.getElementById('user-q').value.toLowerCase();
-        filtU=allUsers.filter(u=>(u.username||'').toLowerCase().includes(q)||(u.telegramId||u.id||'').includes(q));
-        uPage=0; renderUsers();
-    };
-    window.usersPageNav=function(d){uPage+=d;renderUsers();}
-    function renderUsers(){
-        let start=uPage*U_PP, page=filtU.slice(start,start+U_PP);
-        document.getElementById('users-tbody').innerHTML = page.map((u,i)=>`<tr>
-            <td style="color:var(--muted);">${start+i+1}</td>
-            <td class="mono">${u.telegramId||u.id}</td>
-            <td>@${u.username||'—'}</td>
-            <td class="gold">${u.coins||0}</td>
-            <td>${u.gems||0}</td>
-            <td>${u.stage||1}</td>
-            <td>${u.gamesPlayed||0}</td>
-            <td>${u.referCount||0}</td>
-            <td><span class="badge ${u.banned?'badge-banned':'badge-active'}">${u.banned?'Banned':'Active'}</span></td>
-            <td><button class="btn btn-teal btn-xs" onclick="quickEditUser('${u.id}')">✏️</button></td>
-        </tr>`).join('') || '<tr><td colspan="10" class="empty">No users</td></tr>';
-
-        let total=Math.ceil(filtU.length/U_PP);
-        let pg=document.getElementById('users-pg');
-        pg.innerHTML=`<span class="page-info">${filtU.length} users · Page ${uPage+1}/${Math.max(1,total)}</span>`;
-        if(uPage>0) pg.innerHTML+=`<span class="page-btn" onclick="usersPageNav(-1)">← Prev</span>`;
-        if(uPage<total-1) pg.innerHTML+=`<span class="page-btn" onclick="usersPageNav(1)">Next →</span>`;
-    }
-    window.quickEditUser = function(id){
-        nav('search-user');
-        document.getElementById('su-query').value = id;
-        setTimeout(()=>window.searchSingleUser(),100);
-    };
-    window.exportUsersCSV = function(){
-        let csv='TG_ID,Username,Coins,Diamonds,Stage,Games,Referrals,Banned\n';
-        allUsers.forEach(u=>{
-            csv+=`${u.telegramId||u.id},@${u.username||''},${u.coins||0},${u.gems||0},${u.stage||1},${u.gamesPlayed||0},${u.referCount||0},${u.banned?'yes':'no'}\n`;
-        });
-        let a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-        a.download='fruitcut_users.csv'; a.click();
-    };
-
-    // ═══════════════════════════════
-    //   SEARCH + EDIT SINGLE USER
-    // ═══════════════════════════════
-    let editingUid=null;
-    window.searchSingleUser = async function(){
-        let q=document.getElementById('su-query').value.trim();
-        if(!q){ toast('Enter ID or username'); return; }
-        document.getElementById('su-result').style.display='none';
-        // Try direct doc lookup first
-        try {
-            let snap = await getDoc(doc(db,'users',q));
-            if(snap.exists()){ showUserEdit(q,snap.data()); return; }
-        } catch(e){}
-        // Search by username
-        try {
-            const snap=await getDocs(query(collection(db,'users'),where('username','==',q.replace('@',''))));
-            if(!snap.empty){ let d=snap.docs[0]; showUserEdit(d.id,d.data()); return; }
-        } catch(e){}
-        toast('❌ User not found');
-    };
-    function showUserEdit(id,u){
-        editingUid=id;
-        document.getElementById('su-name').textContent=`@${u.username||'—'} (${id})`;
-        document.getElementById('su-stats-grid').innerHTML=`
-            <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
-                <div style="font-family:'Luckiest Guy',cursive;font-size:22px;color:var(--gold);">${u.coins||0}</div><div style="font-size:10px;color:var(--muted);">🪙 Coins</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
-                <div style="font-family:'Luckiest Guy',cursive;font-size:22px;color:var(--teal);">${u.gems||0}</div><div style="font-size:10px;color:var(--muted);">💎 Diamonds</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
-                <div style="font-family:'Luckiest Guy',cursive;font-size:22px;color:var(--purple);">Lv${u.stage||1}</div><div style="font-size:10px;color:var(--muted);">Stage</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center;">
-                <div style="font-family:'Luckiest Guy',cursive;font-size:22px;color:${u.banned?'var(--red)':'var(--green)'};">${u.banned?'🚫':'✅'}</div><div style="font-size:10px;color:var(--muted);">${u.banned?'Banned':'Active'}</div>
-            </div>`;
-        ['su-coins','su-gems','su-stage','su-tokens'].forEach(id=>document.getElementById(id).value='');
-        document.getElementById('su-result').style.display='block';
-    }
-    window.saveUser = async function(){
-        if(!editingUid) return;
-        let updates={};
-        let c=parseInt(document.getElementById('su-coins').value)||0;
-        let g=parseInt(document.getElementById('su-gems').value)||0;
-        let s=document.getElementById('su-stage').value;
-        let t=document.getElementById('su-tokens').value;
-        if(c!==0) updates.coins=increment(c);
-        if(g!==0) updates.gems=increment(g);
-        if(s!=='') updates.stage=parseInt(s);
-        if(t!=='') updates.tokens=Math.min(10,Math.max(0,parseInt(t)));
-        if(!Object.keys(updates).length){ toast('Nothing to save'); return; }
-        try {
-            await updateDoc(doc(db,'users',editingUid),updates);
-            await logAction('edit_user',editingUid,`coins:${c} gems:${g}`);
-            toast('✅ User updated!');
-            window.searchSingleUser();
-        } catch(e){ toast('❌ Failed'); }
-    };
-    window.banUser = async function(){
-        if(!editingUid||!confirm('Ban this user?')) return;
-        await updateDoc(doc(db,'users',editingUid),{banned:true,tokens:0});
-        await logAction('ban_user',editingUid,'');
-        toast('🚫 User banned'); window.searchSingleUser();
-    };
-    window.unbanUser = async function(){
-        if(!editingUid) return;
-        await updateDoc(doc(db,'users',editingUid),{banned:false});
-        await logAction('unban_user',editingUid,'');
-        toast('✅ User unbanned'); window.searchSingleUser();
-    };
-    window.resetUserDaily = async function(){
-        if(!editingUid) return;
-        await updateDoc(doc(db,'users',editingUid),{adsgramCount:0,adsgramDailyCount:0,gigapubCount:0,monetagCount:0,lotteryDailySpins:0,shopTokenBought:0,shopDiamondExchanged:0});
-        toast('🔄 Daily limits reset'); window.searchSingleUser();
-    };
-
-    // ═══════════════════════════════
-    //   WITHDRAWALS
-    // ═══════════════════════════════
-    let allW=[], wFilter='all', wPage=0, W_PP=15;
-    window.loadWithdrawals = async function(){
-        document.getElementById('w-tbody').innerHTML='<tr><td colspan="7" class="loading">Loading...</td></tr>';
-        try {
-            const snap=await getDocs(query(collection(db,'withdrawals'),orderBy('createdAt','desc'),limit(300)));
-            allW=[]; snap.forEach(d=>allW.push({id:d.id,...d.data()}));
-            wPage=0; renderW();
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.renderW = function(){
-        let data=wFilter==='all'?allW:allW.filter(w=>w.status===wFilter);
-        let start=wPage*W_PP, page=data.slice(start,start+W_PP);
-        document.getElementById('w-tbody').innerHTML=page.map(w=>{
-            let sc=w.status==='approved'?'badge-approved':w.status==='rejected'?'badge-rejected':'badge-pending';
-            let time=w.createdAt?.toDate?.()?.toLocaleString()||'—';
-            return `<tr>
-                <td style="font-size:10px;">${time}</td>
-                <td>@${w.username||w.userId}</td>
-                <td>${w.method}</td>
-                <td class="mono" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${w.address||'—'}</td>
-                <td class="gold">💎${w.amount}</td>
-                <td><span class="badge ${sc}">${w.status}</span></td>
-                <td style="white-space:nowrap;">
-                    ${w.status==='pending'?`<button class="btn btn-green btn-xs" onclick="approveW('${w.id}','${w.userId}',${w.amount})">✅ OK</button>
-                    <button class="btn btn-red btn-xs" onclick="rejectW('${w.id}','${w.userId}',${w.amount})">❌ No</button>`:'<span style="color:var(--muted);font-size:11px;">Done</span>'}
-                </td>
-            </tr>`;
-        }).join('')||'<tr><td colspan="7" class="empty">No results</td></tr>';
-        let total=Math.ceil(data.length/W_PP);
-        let pg=document.getElementById('w-pg');
-        pg.innerHTML=`<span class="page-info">${data.length} records · Page ${wPage+1}/${Math.max(1,total)}</span>`;
-        if(wPage>0) pg.innerHTML+=`<span class="page-btn" onclick="wPageNav(-1)">← Prev</span>`;
-        if(wPage<total-1) pg.innerHTML+=`<span class="page-btn" onclick="wPageNav(1)">Next →</span>`;
-    };
-    window.wPageNav=function(d){wPage+=d;renderW();}
-    window.approveW=async function(wid,userId,amount){
-        if(!confirm(`Approve 💎${amount}?`)) return;
-        try {
-            await updateDoc(doc(db,'withdrawals',wid),{status:'approved',processedAt:serverTimestamp()});
-            await logAction('approve_withdraw',userId,`amount:${amount}`);
-            toast('✅ Approved!'); loadWithdrawals(); loadDashboard();
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.rejectW=async function(wid,userId,amount){
-        if(!confirm(`Reject & refund 💎${amount}?`)) return;
-        try {
-            let batch=writeBatch(db);
-            batch.update(doc(db,'withdrawals',wid),{status:'rejected',processedAt:serverTimestamp()});
-            if(userId) batch.update(doc(db,'users',userId),{gems:increment(amount)});
-            await batch.commit();
-            await logAction('reject_withdraw',userId,`refunded:${amount}`);
-            toast('❌ Rejected & refunded!'); loadWithdrawals(); loadDashboard();
-        } catch(e){ toast('❌ Error'); }
-    };
-
-    // ═══════════════════════════════
-    //   ECONOMY
-    // ═══════════════════════════════
-    window.loadEconomy = async function(){
-        try {
-            const usersSnap=await getDocs(collection(db,'users'));
-            let totalD=0,totalC=0,stageSum=0,count=0;
-            usersSnap.forEach(d=>{ let u=d.data(); totalD+=(u.gems||0); totalC+=(u.coins||0); stageSum+=(u.stage||1); count++; });
-            const wSnap=await getDocs(query(collection(db,'withdrawals'),where('status','==','approved')));
-            let totalWD=0; wSnap.forEach(d=>totalWD+=(d.data().amount||0));
-            document.getElementById('eco-total-diamonds').textContent=totalD.toFixed(1);
-            document.getElementById('eco-total-coins').textContent=totalC;
-            document.getElementById('eco-total-withdrawn').textContent=totalWD;
-            document.getElementById('eco-avg-stage').textContent=count?(stageSum/count).toFixed(1):'—';
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.bulkReward=async function(){
-        let c=parseInt(document.getElementById('bulk-coins').value)||0;
-        let g=parseInt(document.getElementById('bulk-gems').value)||0;
-        let t=parseInt(document.getElementById('bulk-tokens').value)||0;
-        if(!c&&!g&&!t){ toast('Enter at least one reward'); return; }
-        if(!confirm(`Give 🪙${c} 💎${g} 🎮${t} to ALL users? This is irreversible.`)) return;
-        try {
-            const snap=await getDocs(collection(db,'users'));
-            let batch=writeBatch(db); let n=0;
-            snap.forEach(d=>{
-                let upd={};
-                if(c) upd.coins=increment(c);
-                if(g) upd.gems=increment(g);
-                if(t) upd.tokens=increment(t);
-                batch.update(doc(db,'users',d.id),upd);
-                n++;
-                if(n%400===0){ batch.commit(); batch=writeBatch(db); }
-            });
-            await batch.commit();
-            await logAction('bulk_reward','ALL',`coins:${c} gems:${g} tokens:${t}`);
-            toast(`🎁 Sent to ${snap.size} users!`);
-        } catch(e){ toast('❌ Error: '+e.message); }
-    };
-
-    // ═══════════════════════════════
-    //   TASKS
-    // ═══════════════════════════════
-    window.loadTasks=async function(){
-        document.getElementById('tasks-list').innerHTML='<div class="loading">Loading...</div>';
-        try {
-            const snap=await getDocs(query(collection(db,'tasks'),orderBy('order','asc')));
-            let tasks=[]; snap.forEach(d=>tasks.push({id:d.id,...d.data()}));
-            document.getElementById('tasks-list').innerHTML=tasks.length?tasks.map(t=>`
-                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                    <span style="font-size:24px;">${t.icon||'📋'}</span>
-                    <div style="flex:1;">
-                        <div style="font-weight:900;font-size:13px;">${t.name}</div>
-                        <div style="font-size:11px;color:var(--muted);">${t.coins?`🪙${t.coins} `:''}${t.gems?`💎${t.gems} `:''}${t.link?`<a href="${t.link}" target="_blank" style="color:var(--teal);">🔗</a>`:''} · Order:${t.order||0}</div>
-                    </div>
-                    <button class="btn btn-red btn-xs" onclick="deleteTask('${t.id}')">🗑️</button>
-                </div>`).join(''):'<div class="empty">No tasks yet.</div>';
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.addTask=async function(){
-        let name=document.getElementById('t-name').value.trim();
-        if(!name){ toast('❌ Name required'); return; }
-        try {
-            await addDoc(collection(db,'tasks'),{
-                name, icon:document.getElementById('t-icon').value||'📋',
-                coins:parseInt(document.getElementById('t-coins').value)||0,
-                gems:parseInt(document.getElementById('t-gems').value)||0,
-                order:parseInt(document.getElementById('t-order').value)||1,
-                link:document.getElementById('t-link').value.trim(),
-                createdAt:serverTimestamp()
-            });
-            toast('✅ Task added!'); ['t-name','t-icon','t-coins','t-gems','t-order','t-link'].forEach(id=>document.getElementById(id).value='');
-            loadTasks();
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.deleteTask=async function(id){
-        if(!confirm('Delete task?')) return;
-        await deleteDoc(doc(db,'tasks',id)); toast('🗑️ Deleted'); loadTasks();
-    };
-
-    // ═══════════════════════════════
-    //   BROADCAST
-    // ═══════════════════════════════
-    window.sendBroadcast=async function(){
-        let title=document.getElementById('bc-title').value.trim();
-        let body=document.getElementById('bc-body').value.trim();
-        if(!title||!body){ toast('❌ Title & body required'); return; }
-        if(!confirm(`Broadcast "${title}" to all users?`)) return;
-        try {
-            await addDoc(collection(db,'broadcasts'),{
-                title,body,
-                type:document.getElementById('bc-type').value,
-                coins:parseInt(document.getElementById('bc-coins').value)||0,
-                gems:parseInt(document.getElementById('bc-gems').value)||0,
-                createdAt:serverTimestamp()
-            });
-            await logAction('broadcast','ALL',title);
-            toast('📢 Broadcast sent!');
-            document.getElementById('bc-title').value=''; document.getElementById('bc-body').value='';
-            loadBroadcasts();
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.loadBroadcasts=async function(){
-        document.getElementById('bc-list').innerHTML='<div class="loading">Loading...</div>';
-        try {
-            const snap=await getDocs(query(collection(db,'broadcasts'),orderBy('createdAt','desc'),limit(20)));
-            let items=[]; snap.forEach(d=>items.push({id:d.id,...d.data()}));
-            document.getElementById('bc-list').innerHTML=items.length?items.map(b=>`
-                <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:11px 14px;display:flex;gap:10px;margin-bottom:8px;align-items:flex-start;">
-                    <span style="font-size:22px;">${b.type==='reward'?'🎁':b.type==='maintenance'?'⚠️':b.type==='event'?'🎪':'ℹ️'}</span>
-                    <div style="flex:1;">
-                        <div style="font-weight:900;font-size:13px;">${b.title}</div>
-                        <div style="font-size:11px;color:var(--muted);margin-top:2px;">${b.body.substring(0,90)}${b.body.length>90?'...':''}</div>
-                        <div style="font-size:10px;color:var(--gold);margin-top:4px;">${b.coins?`🪙${b.coins} `:''}${b.gems?`💎${b.gems} `:''}· ${b.createdAt?.toDate?.()?.toLocaleString()||'—'}</div>
-                    </div>
-                    <button class="btn btn-red btn-xs" onclick="deleteBroadcast('${b.id}')">🗑️</button>
-                </div>`).join(''):'<div class="empty">No broadcasts yet.</div>';
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.deleteBroadcast=async function(id){
-        if(!confirm('Delete?')) return;
-        await deleteDoc(doc(db,'broadcasts',id)); toast('🗑️ Deleted'); loadBroadcasts();
-    };
-
-    // ═══════════════════════════════
-    //   CONFIG
-    // ═══════════════════════════════
-    window.loadConfig=async function(){
-        try {
-            const snap=await getDoc(doc(db,'config','game'));
-            if(snap.exists()){
-                let d=snap.data();
-                document.getElementById('cfg-refill').value=d.tokenRefillMinutes||60;
-                document.getElementById('cfg-maxtoken').value=d.maxTokens||10;
-                document.getElementById('cfg-minw').value=d.minWithdrawDiamonds||100;
-                document.getElementById('cfg-refgem').value=d.referGemReward||5;
-                document.getElementById('cfg-reftoken').value=d.referTokenReward||3;
-                document.getElementById('cfg-maint').value=String(d.maintenance||false);
-                document.getElementById('cfg-lb-min').value=d.lootboxMinClaim||300;
-                document.getElementById('cfg-lb-max').value=d.lootboxMaxPts||1000;
-                document.getElementById('cfg-lottery-daily').value=d.lotteryDailyLimit||10;
+        // --- AUTH LOGIC ---
+        const loginOverlay = document.getElementById('login-overlay');
+        const adminContent = document.getElementById('admin-content');
+        
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginOverlay.style.display = 'none';
+                adminContent.style.display = 'block';
+                loadDashboard();
+            } else {
+                loginOverlay.style.display = 'flex';
+                adminContent.style.display = 'none';
             }
-        } catch(e){}
-    };
-    window.saveConfig=async function(){
-        try {
-            await setDoc(doc(db,'config','game'),{
-                tokenRefillMinutes:parseInt(document.getElementById('cfg-refill').value)||60,
-                maxTokens:parseInt(document.getElementById('cfg-maxtoken').value)||10,
-                minWithdrawDiamonds:parseInt(document.getElementById('cfg-minw').value)||100,
-                referGemReward:parseInt(document.getElementById('cfg-refgem').value)||5,
-                referTokenReward:parseInt(document.getElementById('cfg-reftoken').value)||3,
-                maintenance:document.getElementById('cfg-maint').value==='true',
-                lootboxMinClaim:parseInt(document.getElementById('cfg-lb-min').value)||300,
-                lootboxMaxPts:parseInt(document.getElementById('cfg-lb-max').value)||1000,
-                lotteryDailyLimit:parseInt(document.getElementById('cfg-lottery-daily').value)||10,
-                updatedAt:serverTimestamp()
-            },{merge:true});
-            await logAction('save_config','ADMIN','');
-            toast('✅ Config saved!');
-        } catch(e){ toast('❌ Error'); }
-    };
+        });
 
-    // ═══════════════════════════════
-    //   LOGS
-    // ═══════════════════════════════
-    window.loadLogs=async function(){
-        document.getElementById('logs-tbody').innerHTML='<tr><td colspan="4" class="loading">Loading...</td></tr>';
-        try {
-            const snap=await getDocs(query(collection(db,'adminLogs'),orderBy('createdAt','desc'),limit(50)));
-            let rows='';
-            snap.forEach(d=>{
-                let l=d.data();
-                let time=l.createdAt?.toDate?.()?.toLocaleString()||'—';
-                rows+=`<tr><td style="font-size:10px;">${time}</td><td><span class="tag">${l.action}</span></td><td class="mono">${l.target||'—'}</td><td style="font-size:11px;color:var(--muted);">${l.details||''}</td></tr>`;
-            });
-            document.getElementById('logs-tbody').innerHTML=rows||'<tr><td colspan="4" class="empty">No logs yet</td></tr>';
-        } catch(e){ document.getElementById('logs-tbody').innerHTML='<tr><td colspan="4" class="empty">Logs collection not found</td></tr>'; }
-    };
-    async function logAction(action,target,details){
-        try {
-            await addDoc(collection(db,'adminLogs'),{action,target:String(target),details,createdAt:serverTimestamp()});
-        } catch(e){}
-    }
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            signInWithEmailAndPassword(auth, document.getElementById('adminEmail').value, document.getElementById('adminPass').value)
+                .catch(err => document.getElementById('loginMsg').textContent = "Access Denied. Check credentials.");
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-    // ═══════════════════════════════
-    //   DANGER ZONE
-    // ═══════════════════════════════
-    window.resetAllDaily=async function(){
-        if(!confirm('Reset ALL users daily limits?')) return;
-        try {
-            const snap=await getDocs(collection(db,'users'));
-            let batch=writeBatch(db),n=0;
-            snap.forEach(d=>{
-                batch.update(doc(db,'users',d.id),{adsgramCount:0,adsgramDailyCount:0,gigapubCount:0,monetagCount:0,lotteryDailySpins:0,shopTokenBought:0,shopDiamondExchanged:0});
-                if(++n%400===0){ batch.commit(); batch=writeBatch(db); }
+        // --- NAVIGATION ---
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.nav-btn, .admin-section').forEach(el => el.classList.remove('active'));
+                btn.classList.add('active');
+                const t = btn.dataset.target;
+                document.getElementById(t).classList.add('active');
+                
+                if(t === 'dashboard') loadDashboard();
+                if(t === 'withdrawals') loadWithdrawals();
+                if(t === 'users') loadUsers();
+                if(t === 'manage-tasks') loadTasks();
+                if(t === 'promo-codes') loadPromoCodes();
             });
-            await batch.commit();
-            await logAction('reset_daily_all','ALL','');
-            toast(`✅ Reset ${snap.size} users!`);
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.resetAllLottery=async function(){
-        if(!confirm('Reset ALL lottery spins?')) return;
-        try {
-            const snap=await getDocs(collection(db,'users'));
-            let batch=writeBatch(db),n=0;
-            snap.forEach(d=>{ batch.update(doc(db,'users',d.id),{lotteryDailySpins:0}); if(++n%400===0){ batch.commit(); batch=writeBatch(db); } });
-            await batch.commit();
-            toast(`✅ Lottery reset for ${snap.size} users!`);
-        } catch(e){ toast('❌ Error'); }
-    };
-    window.deleteAllBroadcasts=async function(){
-        if(!confirm('Delete ALL broadcasts? Irreversible.')) return;
-        try {
-            const snap=await getDocs(collection(db,'broadcasts'));
-            let batch=writeBatch(db),n=0;
-            snap.forEach(d=>{ batch.delete(doc(db,'broadcasts',d.id)); if(++n%400===0){ batch.commit(); batch=writeBatch(db); } });
-            await batch.commit();
-            toast(`🗑️ Deleted ${snap.size} broadcasts`);
-        } catch(e){ toast('❌ Error'); }
-    };
-</script>
+        });
+
+        // --- DASHBOARD ---
+        async function loadDashboard() {
+            try {
+                const uSnap = await getCountFromServer(collection(db, "users"));
+                document.getElementById('dash-total-users').textContent = uSnap.data().count;
+                
+                const today = new Date(); today.setHours(0,0,0,0);
+                // Requires index on createdAt
+                const dSnap = await getCountFromServer(query(collection(db, "users"), where("createdAt", ">=", Timestamp.fromDate(today))));
+                document.getElementById('dash-daily-users').textContent = dSnap.data().count || 0;
+
+                const wSnap = await getCountFromServer(query(collection(db, 'withdrawals'), where('status', '==', 'pending')));
+                let wCount = wSnap.data().count;
+                document.getElementById('dash-pending-withdrawals').textContent = wCount;
+                
+                let navBadge = document.getElementById('nav-pending-count');
+                navBadge.textContent = wCount;
+                navBadge.style.display = wCount > 0 ? 'inline-block' : 'none';
+                
+                const tSnap = await getCountFromServer(collection(db, 'tasks'));
+                document.getElementById('dash-active-tasks').textContent = tSnap.data().count;
+            } catch(e) { console.log(e); }
+        }
+
+        // --- WITHDRAWALS ---
+        async function loadWithdrawals() {
+            const list = document.getElementById('withdrawals-list');
+            list.innerHTML = '<div class="loader"></div>';
+            try {
+                const q = query(collection(db, 'withdrawals'), where('status', '==', 'pending'), limit(50));
+                const snap = await getDocs(q);
+                if(snap.empty) { list.innerHTML = '<p style="text-align:center; width:100%;">No pending payouts! 🎉</p>'; return; }
+                
+                const withdrawals = snap.docs.map(d => ({id:d.id, ...d.data()})).sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+                list.innerHTML = '';
+                
+                for(const wd of withdrawals) {
+                    const div = document.createElement('div');
+                    div.className = 'card-item';
+                    div.innerHTML = `
+                        <div class="card-header">
+                            <div>
+                                <span class="username">@${wd.username || 'Unknown'}</span><br>
+                                <span class="userid" onclick="copyTxt('${wd.userId}')" style="cursor:pointer;" title="Click to copy ID">ID: ${wd.userId}</span>
+                            </div>
+                            <span class="badge badge-pending">PENDING</span>
+                        </div>
+                        <div class="card-stats">
+                            <div class="stat-row"><span>Method:</span> <span class="stat-val" style="color:var(--secondary);">${(wd.method||'N/A').toUpperCase()}</span></div>
+                            <div class="stat-row"><span>Amount:</span> <span class="stat-val" style="color:var(--primary); font-size:20px;">💎 ${wd.amount}</span></div>
+                            <div style="margin-top:5px;">
+                                <span style="font-size:12px; color:var(--text-muted);">Address/Details:</span>
+                                <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.5); padding:8px; border-radius:8px; margin-top:4px;">
+                                    <span style="font-family:monospace; font-size:12px; word-break:break-all;">${wd.address}</span>
+                                    <button class="btn btn-dark" style="padding:4px 8px; font-size:11px;" onclick="copyTxt('${wd.address}')">COPY</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:10px; margin-top:auto;">
+                            <button class="btn btn-green" style="flex:1;" onclick="actionWd('${wd.id}', 'approve')">✅ Paid</button>
+                            <button class="btn btn-red" style="flex:1;" onclick="actionWd('${wd.id}', 'reject', '${wd.userId}', ${wd.amount})">❌ Refund</button>
+                        </div>`;
+                    list.appendChild(div);
+                }
+            } catch(e) { list.innerHTML = `<p style="color:red">Error: ${e.message}</p>`; }
+        }
+
+        // --- USERS ---
+        async function loadUsers(searchVal = "") {
+            const list = document.getElementById('users-list');
+            list.innerHTML = '<div class="loader"></div>';
+            try {
+                let snap = [];
+                const cleanSearch = searchVal.trim();
+                
+                if (cleanSearch) {
+                    try {
+                        const docSnap = await getDoc(doc(db, 'users', cleanSearch));
+                        if(docSnap.exists()) { snap.push(docSnap); }
+                    } catch(e) {}
+
+                    if (snap.length === 0) {
+                        const usernameClean = cleanSearch.replace('@', '');
+                        const q = query(collection(db, 'users'), where('username', '==', usernameClean));
+                        const querySnap = await getDocs(q);
+                        querySnap.forEach(d => snap.push(d));
+                    }
+                } else {
+                    const q = query(collection(db, 'users'), limit(50)); // Add orderBy if indexed
+                    const querySnap = await getDocs(q);
+                    querySnap.forEach(d => snap.push(d));
+                }
+
+                list.innerHTML = '';
+                if(!snap || snap.length === 0) { list.innerHTML = '<p>No Users Found.</p>'; return; }
+                
+                snap.forEach(d => {
+                    const u = d.data();
+                    const isBan = u.isBanned || false;
+                    const div = document.createElement('div');
+                    div.className = `card-item ${isBan?'banned-user':''}`;
+                    div.innerHTML = `
+                        <div class="card-header">
+                            <div>
+                                <span class="username">@${u.username || 'unknown'}</span><br>
+                                <span class="userid" onclick="copyTxt('${d.id}')" style="cursor:pointer;" title="Copy ID">ID: ${d.id}</span>
+                            </div>
+                            ${isBan ? '<span class="badge badge-danger">BANNED</span>' : ''}
+                        </div>
+                        <div class="card-stats">
+                            <div class="stat-row"><span>🪙 Coins:</span> <span class="stat-val" style="color:#ffcc00;">${u.coins||0}</span></div>
+                            <div class="stat-row"><span>💎 Diamonds:</span> <span class="stat-val" style="color:#4af;">${u.gems||0}</span></div>
+                            <div class="stat-row"><span>🎮 Tokens:</span> <span class="stat-val" style="color:#cf6fef;">${u.tokens||0}</span></div>
+                            <div class="stat-row"><span>🔗 Referrals:</span> <span class="stat-val">${u.referCount||0}</span></div>
+                        </div>
+                        <div style="display:flex; gap:5px; margin-top:5px; flex-wrap:wrap;">
+                            <button class="btn btn-gold" style="flex:1; padding:6px; font-size:12px;" onclick="editField('${d.id}', 'coins', '🪙 Coins')">Edit 🪙</button>
+                            <button class="btn btn-blue" style="flex:1; padding:6px; font-size:12px;" onclick="editField('${d.id}', 'gems', '💎 Diamonds')">Edit 💎</button>
+                            <button class="btn btn-purple" style="flex:1; padding:6px; font-size:12px;" onclick="editField('${d.id}', 'tokens', '🎮 Tokens')">Edit 🎮</button>
+                        </div>
+                        <button class="btn ${isBan?'btn-green':'btn-red'}" style="margin-top:5px;" onclick="toggleBan('${d.id}', ${isBan})">${isBan?'✅ UNBAN USER':'🚫 BAN USER'}</button>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch(e) { list.innerHTML = `<p>Error: ${e.message}</p>`; }
+        }
+
+        // --- TASKS ---
+        document.getElementById('createTaskForm').addEventListener('submit', async(e) => {
+            e.preventDefault();
+            const msg = document.getElementById('task-msg');
+            const btn = e.target.querySelector('button[type=submit]');
+            btn.disabled = true; btn.textContent = 'Publishing...';
+            try {
+                await addDoc(collection(db, 'tasks'), {
+                    name:  document.getElementById('task-name').value.trim(),
+                    link:  document.getElementById('task-link').value.trim(),
+                    icon:  document.getElementById('task-icon').value.trim(),
+                    coins: parseInt(document.getElementById('task-coins').value) || 0,
+                    gems:  parseInt(document.getElementById('task-gems').value) || 0,
+                    order: parseInt(document.getElementById('task-order').value) || 1,
+                    createdAt: serverTimestamp()
+                });
+                msg.style.color = 'var(--success)';
+                msg.textContent = '✅ Task Published!';
+                e.target.reset();
+                loadTasks();
+            } catch(err) {
+                msg.style.color = 'var(--danger)';
+                msg.textContent = '❌ Error: ' + err.message;
+            }
+            btn.disabled = false; btn.textContent = '✅ Publish Task';
+            setTimeout(()=> msg.textContent='', 3000);
+        });
+
+        async function loadTasks() {
+            const list = document.getElementById('tasks-list');
+            list.innerHTML = '<div class="loader"></div>';
+            try {
+                const q = query(collection(db,'tasks'), orderBy('order','asc'));
+                const snap = await getDocs(q);
+                list.innerHTML = '';
+                if(snap.empty) { list.innerHTML = '<p style="text-align:center; color:#aaa; width:100%;">No tasks found.</p>'; return; }
+
+                snap.forEach(d => {
+                    const t = d.data();
+                    let rewardTxt = '';
+                    if(t.coins > 0) rewardTxt += `🪙 ${t.coins}  `;
+                    if(t.gems > 0) rewardTxt += `💎 ${t.gems}`;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'card-item';
+                    div.innerHTML = `
+                        <div class="card-header">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div style="font-size:30px;">${t.icon||'📋'}</div>
+                                <div>
+                                    <h4 style="margin:0; font-family:'Nunito'; font-weight:900; font-size:16px;">${t.name}</h4>
+                                    <div style="color:var(--primary); font-weight:bold; font-size:14px;">Reward: ${rewardTxt || 'None'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-stats">
+                            <div class="stat-row"><span>Sort Order:</span> <span class="stat-val">${t.order||1}</span></div>
+                            <div class="stat-row"><span>URL:</span> <span class="stat-val" style="color:var(--secondary); font-size:12px; text-align:right; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.link || 'N/A'}</span></div>
+                        </div>
+                        <button class="btn btn-red" style="margin-top:auto;" onclick="delDoc('tasks','${d.id}')">🗑 Delete Task</button>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch(err) { list.innerHTML = `<p style="color:red; text-align:center;">Error: ${err.message}</p>`; }
+        }
+
+        // --- PROMO CODES ---
+        document.getElementById('promoBtn').addEventListener('click', async()=>{
+            const type = document.getElementById('promoType').value;
+            const amount = parseFloat(document.getElementById('promoAmount').value);
+            const max = parseInt(document.getElementById('promoMax').value);
+
+            if(!amount || amount <= 0) return alert("Invalid Amount");
+            
+            const code = 'FC' + Math.floor(1000+Math.random()*9000).toString(); // Format: FCxxxx
+            const exp = new Date(); exp.setHours(exp.getHours()+24);
+            
+            await setDoc(doc(db,'promo_codes',code), {
+                code, rewardType: type, rewardAmount: amount, maxUses: max,
+                currentUses: 0, isActive: true, usersClaimed: [], 
+                expiresAt: Timestamp.fromDate(exp), createdAt: serverTimestamp()
+            });
+
+            document.getElementById('generatedCode').innerHTML = `
+                <span style="color:var(--text-muted);">New Code:</span> 
+                <span style="color:var(--primary); font-size:24px; font-family:'Luckiest Guy'; letter-spacing:2px; margin:0 10px;">${code}</span>
+                <br><span style="color:white; font-size:14px;">(+${amount} ${type})</span>
+            `;
+            loadPromoCodes();
+        });
+
+        async function loadPromoCodes(){
+            const list = document.getElementById('promo-list');
+            list.innerHTML='<div class="loader"></div>';
+            const snap = await getDocs(query(collection(db,'promo_codes'), orderBy('createdAt','desc'), limit(30)));
+            list.innerHTML='';
+            
+            const now = new Date();
+            snap.forEach(d=>{
+                const p = d.data();
+                let isExp = p.expiresAt ? (now > p.expiresAt.toDate()) : false;
+                
+                let icon = p.rewardType === 'gems' ? '💎' : p.rewardType === 'tokens' ? '🎮' : '🪙';
+
+                const div=document.createElement('div'); div.className='card-item';
+                div.innerHTML = `
+                    <div class="card-header">
+                        <h3 style="color:${isExp ? '#777' : 'var(--purple)'}; margin:0;">${p.code}</h3>
+                        ${isExp ? '<span class="badge badge-danger">EXPIRED</span>' : '<span class="badge badge-success">ACTIVE</span>'}
+                    </div>
+                    <div class="card-stats">
+                        <div class="stat-row"><span>Reward:</span> <b>${icon} ${p.rewardAmount}</b></div>
+                        <div class="stat-row"><span>Uses:</span> <b>${p.currentUses}/${p.maxUses}</b></div>
+                        <div class="stat-row"><span style="font-size:12px; color:var(--text-muted);">Exp: ${p.expiresAt ? p.expiresAt.toDate().toLocaleString() : 'N/A'}</span></div>
+                    </div>
+                    <button class="btn btn-dark" style="margin-top:auto;" onclick="delDoc('promo_codes','${d.id}')">Delete</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.clearExpiredPromos = async () => {
+            if(!confirm("Delete ALL expired codes?")) return;
+            const now = new Date();
+            const q = query(collection(db, "promo_codes"), where("expiresAt", "<=", Timestamp.fromDate(now)));
+            try {
+                const snap = await getDocs(q);
+                if(snap.empty) { alert("No expired codes found."); return; }
+                const batch = writeBatch(db);
+                snap.forEach(d => { batch.delete(d.ref); });
+                await batch.commit();
+                alert(`Deleted ${snap.size} codes.`);
+                loadPromoCodes();
+            } catch(e) { alert("Error: " + e.message); }
+        };
+
+        // --- GLOBAL ACTIONS ---
+        window.copyTxt = (txt) => { navigator.clipboard.writeText(txt); alert("Copied to clipboard!"); }
+        window.searchUser = () => loadUsers(document.getElementById('userSearch').value);
+        window.toggleBan = async (uid, isBan) => { 
+            if(confirm(isBan ? "Unban this user?" : "Ban this user?")) { 
+                await updateDoc(doc(db,'users',uid), { isBanned: !isBan }); 
+                loadUsers(document.getElementById('userSearch').value); 
+            } 
+        }
+        
+        window.editField = async (uid, field, label) => { 
+            const val = prompt(`Enter amount to ADD or DEDUCT for ${label}:\n(e.g., 50 to add, -50 to deduct)`); 
+            if(val && !isNaN(val)) { 
+                await updateDoc(doc(db,'users',uid), { [field]: increment(parseFloat(val)) }); 
+                alert(`${label} updated!`);
+                loadUsers(document.getElementById('userSearch').value); 
+            }
+        }
+        
+        window.actionWd = async (id, action, uid, amount) => {
+            if(!confirm(`Are you sure you want to ${action.toUpperCase()} this payout?`)) return;
+            try {
+                const wRef = doc(db, 'withdrawals', id);
+                if(action === 'approve') {
+                    await updateDoc(wRef, { status: 'approved' });
+                } else {
+                    // Reject: Refund Diamonds (gems) to the user
+                    await runTransaction(db, async(t) => { 
+                        t.update(wRef, { status: 'rejected' }); 
+                        t.update(doc(db,'users',uid), { gems: increment(amount) }); 
+                    });
+                }
+                loadWithdrawals(); loadDashboard();
+            } catch(e) { alert("Error: " + e); }
+        }
+
+        window.delDoc = async(col, id) => { 
+            if(confirm("Delete this item permanently?")) { 
+                await deleteDoc(doc(db,col,id)); 
+                if(col==='tasks') loadTasks(); 
+                if(col==='promo_codes') loadPromoCodes(); 
+            } 
+        }
+
+    </script>
 </body>
 </html>
