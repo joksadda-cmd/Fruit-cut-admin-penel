@@ -65,8 +65,7 @@
             <form id="loginForm">
                 <input type="email" id="adminEmail" placeholder="Admin Email" required>
                 <input type="password" id="adminPass" placeholder="Password" required>
-                <!-- ADMIN_SECRET Input for Broadcast functionality -->
-                <input type="password" id="adminSecret" placeholder="Vercel API Secret Key" required title="Required to send Telegram Broadcasts">
+                <!-- Secret Key Input Removed! -->
                 <button type="submit" class="btn btn-gold" style="width: 100%; margin-top: 15px; font-size: 18px; padding: 14px;">🚀 LOGIN</button>
             </form>
             <p id="loginMsg" style="color:#ff3355; margin-top:10px; font-weight:bold;"></p>
@@ -166,7 +165,6 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
         import { getFirestore, collection, getDocs, getDoc, query, where, doc, updateDoc, increment, deleteDoc, setDoc, addDoc, serverTimestamp, runTransaction, limit, getCountFromServer, orderBy } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-        // Firebase Config - Same as main game
         const firebaseConfig = {
             apiKey: "AIzaSyDH56nAHruchExL-kZOUv1MZS8forDWOH0",
             authDomain: "fruit-cut-477ab.firebaseapp.com",
@@ -180,26 +178,26 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        let apiSecret = ""; // Vercel API Secret
+        // 🔥 এইখানে আপনার Vercel এর ADMIN_SECRET টা বসিয়ে দিন (ব্যাস, আর লগিন পেজে দিতে হবে না)
+        const apiSecret = "এখানে_আপনার_ভার্সেলের_ADMIN_SECRET_দিন";
 
         // Auth State
         onAuthStateChanged(auth, (user) => {
-            if (user && apiSecret) {
+            if (user) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('admin-content').style.display = 'block';
                 loadDashboard();
             }
         });
 
-        // Login Logic
+        // Login Logic (No Secret Key needed anymore!)
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            apiSecret = document.getElementById('adminSecret').value;
             signInWithEmailAndPassword(auth, document.getElementById('adminEmail').value, document.getElementById('adminPass').value)
                 .catch(err => document.getElementById('loginMsg').textContent = "Login Failed! Check credentials.");
         });
         
-        document.getElementById('logoutBtn').addEventListener('click', () => { apiSecret=""; signOut(auth); location.reload(); });
+        document.getElementById('logoutBtn').addEventListener('click', () => { signOut(auth); location.reload(); });
 
         // Navigation
         document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -216,10 +214,8 @@
             });
         });
 
-        // Copy Text Helper
         window.copyTxt = (txt) => { navigator.clipboard.writeText(txt); alert("Copied!"); }
 
-        // --- DASHBOARD ---
         async function loadDashboard() {
             try {
                 const uSnap = await getCountFromServer(collection(db, "users"));
@@ -231,7 +227,6 @@
             } catch(e) { console.log(e); }
         }
 
-        // --- WITHDRAWALS ---
         async function loadWithdrawals() {
             const list = document.getElementById('withdrawals-list'); list.innerHTML = '<div class="loader"></div>';
             try {
@@ -283,7 +278,6 @@
             } catch(e) { alert("Error: " + e.message); }
         }
 
-        // --- USERS ---
         async function loadUsers(searchVal = "") {
             const list = document.getElementById('users-list'); list.innerHTML = '<div class="loader"></div>';
             try {
@@ -335,7 +329,6 @@
         window.toggleBan = async (uid, isBan) => { if(confirm(isBan ? "Unban this user?" : "Ban this user?")) { await updateDoc(doc(db,'users',uid), { isBanned: !isBan }); loadUsers(document.getElementById('userSearch').value); } }
         window.editField = async (uid, field, label) => { const val = prompt(`Enter amount to ADD or DEDUCT for ${label}:\n(e.g., 50 to add, -50 to deduct)`); if(val && !isNaN(val)) { await updateDoc(doc(db,'users',uid), { [field]: increment(parseFloat(val)) }); loadUsers(document.getElementById('userSearch').value); } }
 
-        // --- TASKS ---
         document.getElementById('createTaskForm').addEventListener('submit', async(e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button'); btn.disabled = true; btn.textContent = 'Publishing...';
@@ -381,7 +374,6 @@
         }
         window.delDoc = async(col, id) => { if(confirm("Are you sure you want to delete this task?")) { await deleteDoc(doc(db,col,id)); loadTasks(); } }
 
-        // --- BROADCAST (API CALL) ---
         window.sendTelegramBroadcast = async () => {
             const msg = document.getElementById('bc-msg').value;
             const btnText = document.getElementById('bc-btn-text').value;
@@ -396,7 +388,6 @@
             status.style.color = "var(--primary)"; status.textContent = "Do not close this page! Sending messages...";
 
             try {
-                // Calling Vercel API
                 const response = await fetch('https://fruit-cut-eight.vercel.app/api/admin/broadcast_tg', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -407,7 +398,7 @@
                 if(data.success) {
                     status.style.color = "var(--success)";
                     status.textContent = `✅ Success! Sent to ${data.sentCount} users.`;
-                    document.getElementById('bc-msg').value = ''; // clear msg
+                    document.getElementById('bc-msg').value = ''; 
                 } else {
                     status.style.color = "var(--danger)";
                     status.textContent = `❌ Failed: ${data.error}`;
